@@ -1,7 +1,7 @@
 #syntax=docker/dockerfile:1.13
 ARG GO_APP
 
-FROM alpine:3.23.4 AS deps
+FROM alpine:3.24.1 AS deps
 
 ARG GO_APP
 ARG GORELEASER_DIST_DIR=/go/src/dist
@@ -28,7 +28,7 @@ RUN <<EOT
   cp ${BIN_PATH} /go/bin
 EOT
 
-FROM alpine:3.23.4
+FROM alpine:3.24.1
 
 ARG GO_APP
 ENV GO_APP ${GO_APP}
@@ -38,6 +38,8 @@ COPY --from=deps --chmod=755 /go/bin/${GO_APP} /usr/local/bin/${GO_APP}
 COPY --from=deps /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=assets entrypoint.sh /entrypoint.sh
+
+RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
 
 RUN ln -s /usr/local/bin/${GO_APP} /${GO_APP} && chmod +x /entrypoint.sh
 
